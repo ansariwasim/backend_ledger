@@ -38,5 +38,37 @@ import jwt from 'jsonwebtoken'
 
 }
 
+async function loginController(req, res){
 
-export default {registerControler}
+    const {email, password} = req.body;
+   const user =    await userModel.findOne({email}).select("+password")
+   
+   if(!user){
+    return res.status(401).json({message: "Email or Password are invalid"})
+   }
+
+   const passwordValid = await user.comparePassword(password);
+
+   if(!passwordValid){
+    return res.status(401).json({message: "Email or Password are invalid"})
+   }
+
+   const token = jwt.sign({ id: user._id },process.env.JWT_SECRET, {expiresIn: "3d"})
+   res.cookie("token", token)
+
+   res.status(200).json({
+    message: "User login successfully",
+    user:{
+        name: user.name,
+        email: user.email
+    },
+    token
+
+
+   })
+
+
+}
+
+
+export default {registerControler, loginController}
