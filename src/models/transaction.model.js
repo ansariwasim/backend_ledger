@@ -1,0 +1,43 @@
+
+import mongoose from "mongoose";
+
+const transactionSchema = new mongoose.Schema(
+    {
+        fromAccount: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Account",
+            required: [true, "Transaction must be associated with a from account "],
+            index: true
+        },
+         TouchAccount: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Account",
+            required: [true, "Transaction must be associated with a to account "],
+            index: true
+        },
+        status:{
+           type: String,
+           enum: {
+               values: ["PENDING", "COMPLETED", "FAILED", "REVERSED"],
+               message: "Status can be either PENDING, COMPLETED, FAILED or REVERSE"
+           },
+           default: "PENDING"
+        },
+        amount: {
+            type: Number,
+            required: [true, "Amount is required for creating a transaction"]
+        },
+        idempotencyKey: {
+            type: String,
+            required: [true, "Idempotency Key is required for creating a transaction"],
+            index: true,
+            unique: true
+        }
+
+    }, { timestamps: true}
+)
+
+
+
+const Transaction = mongoose.model("Transaction", transactionSchema)
+export default Transaction;
